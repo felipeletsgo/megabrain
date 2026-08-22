@@ -8,7 +8,7 @@ Este projeto opera como um sistema pessoal de conhecimento, memória e organiza�
 
 DEVE seguir `core/RULES.md`.
 
-DEVE seguir o comportamento mínimo de `core/RUNTIME.md`.
+DEVE seguir `core/RUNTIME.md`.
 
 DEVE usar `core/TERMINOLOGY.md` para nomenclatura.
 
@@ -20,7 +20,7 @@ GitHub é a fonte de verdade das regras, skills, arquitetura e migrations.
 
 Supabase é a fonte de verdade da memória pessoal estruturada.
 
-Ferramentas especializadas DEVEM permanecer fonte primária quando aplicável.
+Ferramentas especializadas DEVEM permanecer fonte operacional primária quando aplicável.
 
 Use calendário para compromissos.
 
@@ -30,23 +30,33 @@ Use e-mail para mensagens.
 
 Use contatos para dados de contato.
 
-Para memória estruturada, PREFIRA as operações de `docs/SUPABASE-API.md`.
+Para memória estruturada, siga `docs/SUPABASE-API.md`.
 
 Antes da primeira operação persistente da execução, use `get_primary_brain_identity()`.
 
-NÃO grave `owner_id` nas Instruções do Projeto.
+NÃO fixe `owner_id` nas Instruções do Projeto.
 
-Use `find_entities(...)` para resolver entidades.
+Use `find_entities(...)` antes de criar entidade relevante.
 
-Use `search_memory(...)` para recuperar memória.
+Use `search_current_memory(...)` para estado vigente.
 
-Use `get_record_context(...)` quando precisar de fontes ou relações.
+Use `search_memory(...)` para histórico e comparação temporal.
+
+Use `get_record_context(...)` quando precisar de fontes, evidências ou relações.
 
 Use `ingest_memory_bundle(...)` para ingestão composta.
 
+Use somente `role` e `relation_type` presentes nos catálogos do banco.
+
 Use `supersede_record(...)` para correção ou mudança histórica.
 
-Use `soft_delete_record(...)` para exclusão lógica de registro.
+Use `soft_delete_record(...)` para exclusão lógica.
+
+Use `forget_record(...)` somente para esquecimento irreversível explicitamente solicitado e confirmado.
+
+Use `brain_integrity_report(...)` em revisão periódica, após mudança estrutural ou quando houver suspeita de inconsistência.
+
+Clientes normais NÃO DEVEM alterar diretamente as tabelas de memória.
 
 NÃO improvise mutações diretas quando existir operação segura aplicável.
 
@@ -56,9 +66,13 @@ NÃO invente memória ausente.
 
 NÃO registre tudo.
 
-Quando a Skill Memória classificar uma informação como persistente, e não houver impedimento de segurança ou ferramenta, DEVE gravar a informação na fonte apropriada.
+Quando a Skill Memória classificar informação como persistente e não houver impedimento de segurança ou ferramenta, DEVE gravar a informação na fonte apropriada.
 
 PRESERVE origem, temporalidade e histórico quando relevantes.
+
+Quando uma ferramenta externa mantiver o estado atual, PRESERVE `authority_type`, `external_ref` e `sync_state` quando úteis.
+
+NÃO deixe cópia externa `stale` ou `error` vencer a fonte operacional atual.
 
 SEPARE fato, opinião, hipótese e inferência.
 
@@ -68,7 +82,7 @@ NÃO transforme estado temporário em característica permanente sem evidência 
 
 NÃO trate ausência de registro como prova de ausência de evento.
 
-Use idempotência quando uma operação puder ser repetida por retry.
+Use idempotência para toda ingestão automatizada.
 
 NÃO registre senhas, tokens, chaves de API, códigos de autenticação ou credenciais.
 
