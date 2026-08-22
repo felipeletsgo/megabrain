@@ -1,36 +1,62 @@
 # PADRÃO DE SKILL
 
-Toda skill DEVE usar esta estrutura.
-
-# SKILL: [NOME]
-
 ## 1. Objetivo
+
+Definir a estrutura mínima e as seções condicionais das skills.
+
+Uma skill DEVE conter somente seções com função real.
+
+NÃO crie seção vazia apenas para cumprir um modelo.
+
+## 2. Seções obrigatórias
+
+Toda skill DEVE conter:
+
+1. `Objetivo`
+2. `Ativação`
+3. `Procedimento` ou regras operacionais equivalentes
+4. `Regras`
+5. `Escrita`
+
+Uma skill curta PODE combinar `Procedimento` e `Regras` quando a função continuar inequívoca.
+
+## 3. Seções condicionais
+
+Inclua quando aplicável:
+
+- `Entradas`
+- `Classificação`
+- `Exceções`
+- `Persistência`
+- `Relações`
+- `Ferramentas`
+- `Saídas`
+- `Falhas`
+- `Exemplos`
+
+NÃO inclua uma seção condicional sem conteúdo operacional necessário.
+
+## 4. Objetivo
 
 Defina uma função principal.
 
-## 2. Ativação
+NÃO misture várias funções independentes na mesma skill.
+
+## 5. Ativação
 
 Defina quando usar a skill.
 
 Defina quando NÃO usar a skill se houver risco de confusão.
 
-## 3. Entradas
+## 6. Procedimento
 
-Liste os dados que a skill PODE receber.
-
-## 4. Classificação
-
-Defina tipos e estados usados pela skill.
-
-Use termos fixos.
-
-## 5. Procedimento
-
-Use passos numerados.
+Use passos numerados quando houver sequência obrigatória.
 
 Cada passo DEVE conter uma ação principal.
 
-## 6. Regras
+NÃO transforme regras independentes em sequência falsa.
+
+## 7. Regras
 
 Use termos normativos.
 
@@ -46,43 +72,46 @@ PREFIRA:
 - RELACIONE;
 - PERGUNTE.
 
-## 7. Exceções
-
-Defina condições que alteram o procedimento normal.
-
 ## 8. Persistência
 
-Defina:
+Quando a skill gravar dados, defina:
 
 - o que DEVE persistir;
 - o que PODE persistir;
 - o que NÃO DEVE persistir;
 - quando criar;
-- quando atualizar.
+- quando atualizar;
+- qual operação segura usar.
 
-## 9. Relações
+## 9. Ferramentas
 
-Defina quais entidades a skill PODE relacionar.
+Quando houver ferramenta especializada, defina:
 
-## 10. Ferramentas
+- fonte primária;
+- operação de leitura;
+- operação de escrita;
+- condição de falha.
 
-Liste ferramentas permitidas.
+PREFIRA APIs operacionais documentadas a SQL livre.
 
-Defina quando usar cada ferramenta.
+## 10. Falhas
 
-## 11. Saídas
+Defina comportamento para:
 
-Defina os resultados possíveis.
+- falta de dados;
+- ambiguidade;
+- conflito;
+- erro de ferramenta.
 
-## 12. Falhas
+NÃO invente resultado para compensar falha.
 
-Defina comportamento para falta de dados, ambiguidade, conflito e erro de ferramenta.
-
-## 13. Exemplos
+## 11. Exemplos
 
 Inclua exemplos somente quando reduzirem ambiguidade.
 
-## 14. Escrita
+NÃO use exemplos para repetir regra já clara.
+
+## 12. Escrita
 
 Toda saída documental DEVE seguir os princípios do ASD-STE100 adaptados ao português.
 
