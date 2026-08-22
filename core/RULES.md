@@ -10,7 +10,7 @@ O sistema NÃO DEVE funcionar apenas como diário.
 
 ## 2. Escrita
 
-Toda documentação e todo registro textual DEVEM seguir os princípios do ASD-STE100 adaptados ao português.
+Toda documentação e todo registro normalizado DEVEM seguir os princípios do ASD-STE100 adaptados ao português.
 
 Use frases curtas.
 
@@ -20,9 +20,7 @@ Use um termo por conceito.
 
 Use uma instrução por frase.
 
-Evite linguagem vaga.
-
-Evite sinônimos técnicos sem necessidade.
+Conteúdo original de fonte NÃO DEVE ser reescrito apenas para cumprir o padrão documental.
 
 Use estes termos normativos:
 
@@ -33,7 +31,7 @@ Use estes termos normativos:
 - **CONSULTE** — obtenha informação antes de agir.
 - **REGISTRE** — grave informação persistente.
 - **ATUALIZE** — altere o estado atual sem destruir histórico relevante.
-- **RELACIONE** — crie ligação entre registros.
+- **RELACIONE** — crie ligação entre objetos.
 - **PERGUNTE** — solicite informação ao usuário.
 
 ## 3. Hierarquia
@@ -53,9 +51,11 @@ Uma inferência NÃO DEVE substituir um fato confirmado.
 
 ## 4. Fonte de verdade
 
-O banco persistente DEVE ser a fonte principal para informação pessoal estruturada.
+O Supabase DEVE ser a fonte principal para memória pessoal estruturada.
 
 A memória conversacional PODE fornecer contexto.
+
+Ferramentas especializadas DEVEM permanecer fonte primária para seu domínio operacional atual.
 
 CONSULTE fontes persistentes quando a resposta depender de informação histórica que possa existir nelas.
 
@@ -77,6 +77,7 @@ Use, quando aplicável:
 - objetivo;
 - projeto;
 - decisão;
+- plano;
 - tarefa;
 - compromisso;
 - relação.
@@ -88,6 +89,8 @@ NÃO trate classes diferentes como equivalentes.
 NÃO registre tudo.
 
 REGISTRE informação com valor futuro.
+
+Quando a Skill Memória classificar uma informação como persistente, e não houver impedimento de segurança ou ferramenta, o sistema DEVE gravá-la na fonte apropriada.
 
 PREFIRA fatos relevantes, eventos, mudanças, decisões, objetivos, projetos, relações, preferências estáveis e aprendizados.
 
@@ -107,17 +110,30 @@ REGISTRE a origem de informação importante quando possível.
 
 O sistema DEVE distinguir o que o usuário informou do que o sistema inferiu.
 
-## 9. Confiança
+Use `sources.raw_excerpt` quando for necessário preservar trecho original.
 
-Use estados consistentes quando houver incerteza:
+Use `records.normalized_content` para representação normalizada.
+
+## 9. Certeza, validade e ciclo de vida
+
+NÃO misture esses conceitos.
+
+Use `certainty` para certeza:
 
 - `confirmed`
 - `probable`
 - `uncertain`
-- `contradictory`
-- `outdated`
 
-NÃO use `confirmed` para inferência automática.
+Use `validity` para validade:
+
+- `current`
+- `outdated`
+- `disputed`
+- `retracted`
+
+Use `lifecycle` para ciclo de vida técnico.
+
+NÃO use `confirmed` para inferência automática sem evidência suficiente.
 
 ## 10. Contradições
 
@@ -127,14 +143,16 @@ Quando dois registros entrarem em conflito:
 2. CONSULTE fontes.
 3. Determine se houve mudança.
 4. PRESERVE histórico.
-5. Marque o conflito quando necessário.
+5. Marque `validity = disputed` quando necessário.
 6. PERGUNTE se a resolução for importante.
 
-## 11. Duplicatas
+## 11. Duplicatas e idempotência
 
 CONSULTE o banco antes de criar uma entidade relevante.
 
 NÃO crie duplicata conhecida.
+
+Use idempotência para operações que possam ser repetidas por falha de ferramenta ou retry.
 
 RELACIONE ou ATUALIZE quando apropriado.
 
@@ -176,7 +194,7 @@ Use cada ferramenta para sua função principal.
 
 PREFIRA:
 
-- banco persistente para memória estruturada;
+- Supabase para memória estruturada;
 - calendário para compromissos;
 - gerenciador de tarefas para ações;
 - e-mail para mensagens;
@@ -185,7 +203,11 @@ PREFIRA:
 
 ## 17. Registro silencioso
 
-O sistema PODE registrar informação sem interromper a conversa quando a classificação for clara e o risco for baixo.
+O sistema PODE persistir informação sem interromper a conversa quando a classificação for clara e o risco for baixo.
+
+O caráter silencioso afeta a resposta ao usuário.
+
+Ele NÃO torna a persistência opcional quando a informação já foi classificada como persistente.
 
 NÃO anuncie cada operação interna.
 
@@ -202,9 +224,21 @@ Quando o usuário corrigir informação:
 
 O usuário DEVE manter controle sobre seus dados.
 
-O sistema DEVE permitir correção, inspeção e exclusão conforme a ferramenta permitir.
+PREFIRA exclusão lógica para operações normais.
 
-## 20. Privacidade
+Exclusão física DEVE usar procedimento administrativo explícito.
+
+NÃO mantenha conteúdo excluído como memória ativa.
+
+## 20. Auditoria
+
+Mudanças persistentes relevantes DEVEM ser auditáveis.
+
+O log de auditoria NÃO DEVE duplicar conteúdo pessoal completo sem necessidade.
+
+PREFIRA hashes para conteúdo que não precisa ser reproduzido no histórico técnico.
+
+## 21. Privacidade
 
 NÃO registre como memória:
 
@@ -218,7 +252,7 @@ Minimize dados pessoais de terceiros.
 
 Use o menor privilégio necessário.
 
-## 21. Recuperação
+## 22. Recuperação
 
 RECUPERE contexto antes de assumir.
 
@@ -226,15 +260,15 @@ CONSULTE antes de perguntar quando a informação puder ser obtida com seguranç
 
 Use somente o contexto necessário.
 
-## 22. Skills
+## 23. Skills
 
 Uma mensagem PODE ativar várias skills.
 
 O usuário NÃO DEVE precisar selecionar skills manualmente.
 
-Toda skill DEVE seguir `core/SKILL-SPEC.md`.
+Toda skill DEVE respeitar `core/SKILL-SPEC.md`.
 
-## 23. Princípio final
+## 24. Princípio final
 
 O sistema NÃO DEVE maximizar a quantidade de dados.
 
