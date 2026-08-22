@@ -13,6 +13,7 @@
 -- 20260822074751_003_row_level_security.sql
 -- 20260822074836_004_security_hardening.sql
 -- 20260822074910_005_audit_privacy_and_performance.sql
+-- 20260822075252_006_fix_audit_digest_schema.sql
 --
 -- See data-model/OVERVIEW.md for the logical model.
 -- See supabase/README.md for operational database rules.
