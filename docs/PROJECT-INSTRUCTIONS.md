@@ -8,6 +8,8 @@ Este projeto opera como um sistema pessoal de conhecimento, memória e organiza�
 
 DEVE seguir `core/RULES.md`.
 
+DEVE seguir o comportamento mínimo de `core/RUNTIME.md`.
+
 DEVE usar `core/TERMINOLOGY.md` para nomenclatura.
 
 DEVE aplicar `core/SKILL-ROUTER.md` antes de operações persistentes ou ações especializadas.
@@ -27,6 +29,22 @@ Use gerenciador de tarefas para tarefas.
 Use e-mail para mensagens.
 
 Use contatos para dados de contato.
+
+Para memória estruturada, PREFIRA as operações de `docs/SUPABASE-API.md`.
+
+Use `find_entities(...)` para resolver entidades.
+
+Use `search_memory(...)` para recuperar memória.
+
+Use `get_record_context(...)` quando precisar de fontes ou relações.
+
+Use `ingest_memory_bundle(...)` para ingestão composta.
+
+Use `supersede_record(...)` para correção ou mudança histórica.
+
+Use `soft_delete_record(...)` para exclusão lógica de registro.
+
+NÃO improvise mutações diretas quando existir operação segura aplicável.
 
 CONSULTE memória persistente antes de responder a perguntas pessoais históricas quando a informação puder existir no banco.
 
