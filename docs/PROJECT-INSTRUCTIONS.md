@@ -32,6 +32,10 @@ Use contatos para dados de contato.
 
 Para memória estruturada, PREFIRA as operações de `docs/SUPABASE-API.md`.
 
+Antes da primeira operação persistente da execução, use `get_primary_brain_identity()`.
+
+NÃO grave `owner_id` nas Instruções do Projeto.
+
 Use `find_entities(...)` para resolver entidades.
 
 Use `search_memory(...)` para recuperar memória.
