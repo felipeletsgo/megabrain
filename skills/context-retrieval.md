@@ -23,6 +23,7 @@ Exemplos:
 Use, quando aplicável:
 
 - entidade;
+- estado atual;
 - tempo;
 - texto;
 - relação;
@@ -35,21 +36,22 @@ Use, quando aplicável:
 
 1. Identifique a intenção.
 2. Resolva entidades com `find_entities(...)` quando necessário.
-3. Identifique o período.
-4. Determine o tipo de recuperação.
-5. Use `search_memory(...)` para recuperar candidatos.
+3. Identifique se a pergunta é atual ou histórica.
+4. Identifique o período quando aplicável.
+5. Use a função de recuperação adequada.
 6. Avalie relevância.
 7. Avalie `certainty`.
 8. Avalie `validity`.
 9. Avalie `lifecycle`.
-10. Use `get_record_context(...)` quando precisar de fonte, evidência ou relações.
-11. Resolva conflitos.
-12. Selecione somente o contexto necessário.
-13. Use o contexto na resposta ou ação.
+10. Verifique `authority_type` quando a informação tiver fonte operacional externa.
+11. Use `get_record_context(...)` quando precisar de fonte, evidência ou relações.
+12. Resolva conflitos.
+13. Selecione somente o contexto necessário.
+14. Use o contexto na resposta ou ação.
 
 ## 5. Fontes
 
-PREFIRA a fonte primária.
+PREFIRA a fonte operacional atual.
 
 Exemplos:
 
@@ -59,21 +61,32 @@ Exemplos:
 - e-mail para conteúdo de e-mail;
 - Supabase para memória estruturada.
 
+Se um registro externo estiver `stale` ou `error`, CONSULTE a fonte primária antes de afirmar o estado atual quando possível.
+
 ## 6. API de recuperação
 
 Use `find_entities(...)` para:
 
 - nome;
 - alias;
-- tipo de entidade.
+- tipo de entidade;
+- pequenas variações de escrita.
+
+Use `search_current_memory(...)` para:
+
+- estado atual;
+- preferência atual;
+- situação vigente;
+- projeto atual;
+- objetivo ativo.
 
 Use `search_memory(...)` para:
 
-- texto;
-- tipo de registro;
-- entidade;
-- período;
-- registros recentes.
+- histórico;
+- comparação temporal;
+- primeira ocorrência;
+- última ocorrência;
+- registros antigos ou substituídos.
 
 Use `get_record_context(...)` para:
 
@@ -81,23 +94,24 @@ Use `get_record_context(...)` para:
 - papéis das entidades;
 - relações com outros registros;
 - evidências;
-- auditoria contextual.
+- contexto de supersessão.
 
 NÃO solicite `raw_excerpt` por padrão.
 
-Use fonte bruta somente quando ela for necessária para verificar interpretação, origem ou auditoria.
-
 ## 7. Busca
 
-PREFIRA filtro estruturado quando data, tipo ou entidade forem conhecidos.
+A busca combina:
 
-Use busca textual para linguagem aproximada.
+- full-text em português;
+- correspondência parcial;
+- similaridade de texto;
+- filtros estruturados.
 
-A busca textual DEVE gerar candidatos.
+A busca gera candidatos.
 
-Ela NÃO DEVE provar que dois registros representam o mesmo fato.
+Ela NÃO prova que dois registros representam o mesmo fato ou a mesma entidade.
 
-Busca semântica vetorial PODE ser adicionada posteriormente.
+Busca vetorial PODE ser adicionada posteriormente.
 
 ## 8. Relevância
 
@@ -117,10 +131,10 @@ NÃO use `created_at` como data do acontecimento quando `occurred_at` existir.
 
 Para perguntas sobre estado atual:
 
-1. PREFIRA `validity = current`.
-2. PREFIRA registro não `superseded` quando houver substituição válida.
-3. Considere relações `supersedes`.
-4. NÃO apresente registro `retracted` como estado atual.
+1. PREFIRA `search_current_memory(...)`.
+2. PREFIRA fonte operacional atual quando existir.
+3. NÃO apresente registro `superseded`, `outdated` ou `retracted` como estado atual.
+4. Investigue `sync_state = stale` ou `error` antes de afirmar dado externo como atual.
 
 ## 11. Ausência
 
@@ -133,6 +147,8 @@ PREFIRA: `Não encontrei registro suficiente.`
 NÃO apresente inferência recuperada como fato.
 
 PRESERVE a certeza registrada.
+
+Recupere evidências quando a conclusão depender de inferência.
 
 ## 13. Falha
 
