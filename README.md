@@ -4,13 +4,29 @@ Sistema pessoal de conhecimento, memória e organização.
 
 ## Estado
 
-A arquitetura documental está criada.
+O núcleo V1 do Supabase está ativo, auditado e validado.
 
-O núcleo V1 do Supabase está ativo e validado.
+A base contém:
 
-A base contém proprietário lógico, entidade `self`, fontes, registros, relações, auditoria, idempotência, RLS, busca textual, ingestão atômica, recuperação e operações seguras de ciclo de vida.
+- proprietário lógico;
+- entidade `self`;
+- fontes;
+- registros;
+- relações;
+- auditoria com minimização de conteúdo;
+- idempotência serializada;
+- RLS;
+- busca full-text e trigram;
+- ingestão atômica;
+- recuperação atual e histórica;
+- autoridade de fonte externa;
+- vocabulário controlado de relações;
+- operações seguras de ciclo de vida;
+- exclusão lógica;
+- esquecimento irreversível confirmado;
+- diagnóstico de integridade.
 
-Busca semântica com embeddings ainda NÃO está ativa.
+Busca vetorial com embeddings ainda NÃO está ativa.
 
 ## Arquitetura
 
@@ -39,7 +55,7 @@ Dados pessoais NÃO DEVEM ser gravados neste repositório.
 6. `core/SKILL-ROUTER.md`
 7. `core/SKILL-SPEC.md`
 8. skill aplicável em `skills/`
-9. `docs/SUPABASE-API.md` para operações persistentes
+9. `docs/SUPABASE-API.md`
 10. documentação do modelo em `data-model/`
 11. migrations em `supabase/migrations/`
 
@@ -59,15 +75,15 @@ Contém o modelo lógico, tipos de registro, relações, memória e busca semân
 
 ### `supabase/`
 
-Contém as migrations aplicadas ao banco.
+Contém migrations e testes do banco.
 
 ### `docs/`
 
-Contém arquitetura, bootstrap, API operacional e instruções do Projeto ChatGPT.
+Contém arquitetura, bootstrap, API operacional, auditorias e instruções do Projeto ChatGPT.
 
 ## Supabase V1
 
-Tabelas principais:
+Tabelas pessoais principais:
 
 - `brain_owners`;
 - `sources`;
@@ -81,29 +97,43 @@ Tabelas principais:
 - `record_relations`;
 - `audit_log`.
 
+Catálogos técnicos:
+
+- `record_entity_role_catalog`;
+- `record_relation_type_catalog`;
+- `entity_relation_type_catalog`.
+
 O modelo separa:
 
 - `certainty` — certeza;
 - `validity` — validade;
 - `lifecycle` — ciclo de vida;
-- `domain_status` — estado específico do tipo de registro.
+- `domain_status` — estado específico do tipo;
+- `authority_type` — fonte operacional;
+- `sync_state` — estado de sincronização externa.
 
 RLS está ativo em todas as tabelas pessoais.
 
-O `audit_log` é append-only para clientes autenticados.
+Clientes autenticados NÃO DEVEM alterar diretamente o grafo de memória.
 
-Conteúdo pessoal completo NÃO DEVE ser duplicado no log de auditoria.
+O `audit_log` é append-only para clientes normais.
+
+Conteúdo pessoal em claro NÃO DEVE ser duplicado no log de auditoria quando puder ser representado por hash.
 
 ## API operacional
 
 PREFIRA:
 
-- `ingest_memory_bundle(...)` — ingestão atômica;
-- `find_entities(...)` — resolução de entidade;
-- `search_memory(...)` — recuperação;
+- `get_primary_brain_identity()` — identidade lógica;
+- `ingest_memory_bundle(...)` — ingestão atômica e idempotente;
+- `find_entities(...)` — resolução tolerante de entidade;
+- `search_current_memory(...)` — estado atual;
+- `search_memory(...)` — histórico;
 - `get_record_context(...)` — fontes e relações;
 - `supersede_record(...)` — correção ou mudança histórica;
-- `soft_delete_record(...)` — exclusão lógica.
+- `soft_delete_record(...)` — exclusão lógica;
+- `forget_record(...)` — esquecimento irreversível confirmado;
+- `brain_integrity_report(...)` — diagnóstico estrutural.
 
 LEIA `docs/SUPABASE-API.md` antes de criar nova operação persistente.
 
@@ -111,7 +141,7 @@ LEIA `docs/SUPABASE-API.md` antes de criar nova operação persistente.
 
 Use `docs/PROJECT-INSTRUCTIONS.md` como base para as Instruções do Projeto.
 
-Use `docs/BOOTSTRAP.md` para configurar as integrações.
+Use `docs/BOOTSTRAP.md` para configurar integrações.
 
 ## Escrita
 
