@@ -13,9 +13,20 @@ begin
 end;
 $$;
 
+-- A Brain owner is independent from Supabase Auth.
+-- auth_user_id can be linked later when a frontend is created.
+create table public.brain_owners (
+  id uuid primary key default gen_random_uuid(),
+  auth_user_id uuid unique references auth.users(id) on delete set null,
+  display_name text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table public.sources (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   source_type text not null,
   external_id text,
   uri text,
@@ -28,7 +39,7 @@ create table public.sources (
 
 create table public.entities (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   entity_type text not null,
   canonical_name text not null,
   description text,
@@ -43,7 +54,7 @@ create table public.entities (
 
 create table public.entity_aliases (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   entity_id uuid not null references public.entities(id) on delete cascade,
   alias text not null,
   alias_type text,
@@ -54,7 +65,7 @@ create table public.entity_aliases (
 
 create table public.records (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   record_type text not null,
   title text,
   content text,
@@ -77,7 +88,7 @@ create table public.records (
 
 create table public.record_entities (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   record_id uuid not null references public.records(id) on delete cascade,
   entity_id uuid not null references public.entities(id) on delete cascade,
   role text not null default 'related',
@@ -88,7 +99,7 @@ create table public.record_entities (
 
 create table public.entity_relations (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   source_entity_id uuid not null references public.entities(id) on delete cascade,
   target_entity_id uuid not null references public.entities(id) on delete cascade,
   relation_type text not null,
@@ -105,7 +116,7 @@ create table public.entity_relations (
 
 create table public.record_relations (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   source_record_id uuid not null references public.records(id) on delete cascade,
   target_record_id uuid not null references public.records(id) on delete cascade,
   relation_type text not null,
@@ -117,7 +128,7 @@ create table public.record_relations (
 
 create table public.audit_log (
   id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
+  owner_id uuid not null references public.brain_owners(id) on delete cascade,
   object_type text not null,
   object_id uuid,
   operation text not null,
@@ -128,6 +139,7 @@ create table public.audit_log (
   created_at timestamptz not null default now()
 );
 
+create index brain_owners_auth_user_idx on public.brain_owners(auth_user_id);
 create index entities_owner_type_idx on public.entities(owner_id, entity_type);
 create index entities_owner_name_idx on public.entities(owner_id, lower(canonical_name));
 create index entity_aliases_owner_alias_idx on public.entity_aliases(owner_id, lower(alias));
@@ -142,6 +154,10 @@ create index entity_relations_target_idx on public.entity_relations(target_entit
 create index record_relations_source_idx on public.record_relations(source_record_id, relation_type);
 create index record_relations_target_idx on public.record_relations(target_record_id, relation_type);
 create index sources_owner_type_idx on public.sources(owner_id, source_type);
+
+create trigger brain_owners_set_updated_at
+before update on public.brain_owners
+for each row execute function public.set_updated_at();
 
 create trigger sources_set_updated_at
 before update on public.sources
@@ -159,6 +175,7 @@ create trigger entity_relations_set_updated_at
 before update on public.entity_relations
 for each row execute function public.set_updated_at();
 
+alter table public.brain_owners enable row level security;
 alter table public.sources enable row level security;
 alter table public.entities enable row level security;
 alter table public.entity_aliases enable row level security;
@@ -168,30 +185,52 @@ alter table public.entity_relations enable row level security;
 alter table public.record_relations enable row level security;
 alter table public.audit_log enable row level security;
 
+create policy brain_owners_self_all on public.brain_owners
+for all
+using (auth.uid() = auth_user_id)
+with check (auth.uid() = auth_user_id);
+
 create policy sources_owner_all on public.sources
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy entities_owner_all on public.entities
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy entity_aliases_owner_all on public.entity_aliases
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy records_owner_all on public.records
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy record_entities_owner_all on public.record_entities
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy entity_relations_owner_all on public.entity_relations
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy record_relations_owner_all on public.record_relations
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
 create policy audit_log_owner_all on public.audit_log
-for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+for all
+using (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()))
+with check (exists (select 1 from public.brain_owners o where o.id = owner_id and o.auth_user_id = auth.uid()));
 
+comment on table public.brain_owners is 'Logical owners of MegaBrain data. Can be linked to Supabase Auth later.';
 comment on table public.entities is 'Stable entities such as people, organizations and places.';
 comment on table public.records is 'Persistent temporal and semantic records used by MegaBrain skills.';
 comment on table public.record_relations is 'Links records for evidence, contradiction, supersession and other relations.';
