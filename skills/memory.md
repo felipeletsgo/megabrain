@@ -55,8 +55,8 @@ Use, quando aplicável:
 11. Determine `lifecycle`.
 12. REGISTRE origem.
 13. RELACIONE fontes e evidências.
-14. Use idempotência quando houver risco de retry.
-15. Grave a informação na fonte apropriada.
+14. Gere uma chave de idempotência para a ingestão.
+15. Grave a unidade de mudança de forma atômica.
 
 ## 6. Regras
 
@@ -126,15 +126,39 @@ Use `normalized_content` para representação normalizada.
 
 ## 11. Persistência
 
+Use `ingest_memory_bundle(...)` para criar uma unidade de memória composta.
+
+PREFIRA uma ingestão atômica a vários `INSERT` independentes.
+
+O pacote PODE criar:
+
+- fonte;
+- entidades;
+- aliases;
+- registros;
+- ligações entre registros e entidades;
+- relações entre registros;
+- relações entre entidades.
+
+Use `historical_record_relations` quando um registro novo precisar se ligar a registro histórico existente.
+
 CRIE novo registro para nova unidade de informação com identidade temporal ou semântica própria.
 
-ATUALIZE quando houver detalhe adicional sem necessidade de preservar versão separada.
+ATUALIZE somente quando houver detalhe adicional sem necessidade de preservar versão separada.
 
-Use relação `supersedes` quando uma nova versão substituir informação histórica relevante.
+Use `supersede_record(...)` quando uma nova versão substituir informação histórica relevante.
+
+NÃO faça sequência manual de gravações quando `ingest_memory_bundle(...)` puder representar a mudança.
 
 NÃO sobrescreva histórico relevante.
 
-## 12. Inferências
+## 12. Idempotência
+
+Toda ingestão automatizada DEVE usar `idempotency_key` estável para a mesma operação lógica.
+
+Um retry NÃO DEVE criar cópia adicional da mesma memória.
+
+## 13. Inferências
 
 Uma inferência DEVE ter evidências relacionadas.
 
@@ -142,17 +166,17 @@ Uma inferência DEVE poder ser revisada.
 
 Uma inferência NÃO DEVE usar `certainty = confirmed` sem evidência suficiente.
 
-## 13. Auditoria
+## 14. Auditoria
 
 Mudanças persistentes DEVEM gerar auditoria automática quando suportado.
 
 O log NÃO DEVE duplicar conteúdo pessoal completo sem necessidade.
 
-## 14. Segurança
+## 15. Segurança
 
 NÃO registre senha, token, chave de API, código de autenticação ou credencial.
 
-## 15. Saídas
+## 16. Saídas
 
 - novo registro;
 - atualização;
@@ -162,7 +186,7 @@ NÃO registre senha, token, chave de API, código de autenticação ou credencia
 - memória consolidada;
 - nenhuma ação.
 
-## 16. Escrita
+## 17. Escrita
 
 Use ASD-STE100 adaptado em conteúdo normalizado.
 
