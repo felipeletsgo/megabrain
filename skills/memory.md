@@ -53,10 +53,12 @@ Use, quando aplicável:
 9. Determine `certainty`.
 10. Determine `validity`.
 11. Determine `lifecycle`.
-12. REGISTRE origem.
-13. RELACIONE fontes e evidências.
-14. Gere uma chave de idempotência para a ingestão.
-15. Grave a unidade de mudança de forma atômica.
+12. Determine a fonte operacional quando aplicável.
+13. REGISTRE origem.
+14. RELACIONE fontes e evidências.
+15. Use somente papéis e relações do vocabulário controlado.
+16. Gere chave de idempotência para a ingestão.
+17. Grave a unidade de mudança de forma atômica.
 
 ## 6. Regras
 
@@ -70,13 +72,15 @@ NÃO transforme inferência em fato.
 
 PRESERVE histórico relevante.
 
+NÃO invente `relation_type` ou `role` fora dos catálogos do banco.
+
 ## 7. Certeza
 
 Use `certainty`:
 
-- `confirmed`
-- `probable`
-- `uncertain`
+- `confirmed`;
+- `probable`;
+- `uncertain`.
 
 NÃO use certeza para representar conflito ou informação antiga.
 
@@ -84,10 +88,10 @@ NÃO use certeza para representar conflito ou informação antiga.
 
 Use `validity`:
 
-- `current`
-- `outdated`
-- `disputed`
-- `retracted`
+- `current`;
+- `outdated`;
+- `disputed`;
+- `retracted`.
 
 ## 9. Ciclo de vida
 
@@ -95,10 +99,10 @@ Use `lifecycle` para estado técnico do registro.
 
 PREFIRA:
 
-- `active`
-- `archived`
-- `superseded`
-- `deleted`
+- `active`;
+- `archived`;
+- `superseded`;
+- `deleted`.
 
 Use `domain_status` para estado específico do tipo.
 
@@ -108,57 +112,62 @@ Use `sources`.
 
 PREFIRA:
 
-- `conversation`
-- `calendar`
-- `email`
-- `contact`
-- `document`
-- `database`
-- `integration`
-- `inference`
-- `manual`
+- `conversation`;
+- `calendar`;
+- `email`;
+- `contact`;
+- `document`;
+- `database`;
+- `integration`;
+- `inference`;
+- `manual`.
 
 Um registro PODE ter várias fontes por `record_sources`.
 
-Use `raw_excerpt` quando for necessário preservar conteúdo original.
+Use `raw_excerpt` somente quando a evidência original tiver valor futuro.
+
+NÃO salve transcrição completa por padrão.
 
 Use `normalized_content` para representação normalizada.
 
-## 11. Persistência
+## 11. Autoridade operacional
 
-Use `ingest_memory_bundle(...)` para criar uma unidade de memória composta.
+Quando outra ferramenta mantiver o estado atual, REGISTRE quando útil:
 
-PREFIRA uma ingestão atômica a vários `INSERT` independentes.
+- `authority_type`;
+- `external_ref`;
+- `sync_state`;
+- `last_synced_at`.
 
-O pacote PODE criar:
+PREFIRA a fonte operacional para dado atual.
 
-- fonte;
-- entidades;
-- aliases;
-- registros;
-- ligações entre registros e entidades;
-- relações entre registros;
-- relações entre entidades.
+NÃO deixe cópia `stale` ou `error` vencer Calendar, gerenciador de tarefas, e-mail ou contatos.
 
-Use `historical_record_relations` quando um registro novo precisar se ligar a registro histórico existente.
+## 12. Persistência
+
+Use `ingest_memory_bundle(...)` para criar unidade composta.
+
+A função serializa chamadas com a mesma chave de idempotência.
+
+PREFIRA ingestão atômica a vários `INSERT` independentes.
+
+Use `historical_record_relations` quando registro novo precisar se ligar a registro histórico existente.
 
 CRIE novo registro para nova unidade de informação com identidade temporal ou semântica própria.
 
-ATUALIZE somente quando houver detalhe adicional sem necessidade de preservar versão separada.
+Use `supersede_record(...)` quando nova versão substituir informação histórica relevante.
 
-Use `supersede_record(...)` quando uma nova versão substituir informação histórica relevante.
-
-NÃO faça sequência manual de gravações quando `ingest_memory_bundle(...)` puder representar a mudança.
+NÃO chame funções internas de ingestão.
 
 NÃO sobrescreva histórico relevante.
 
-## 12. Idempotência
+## 13. Idempotência
 
 Toda ingestão automatizada DEVE usar `idempotency_key` estável para a mesma operação lógica.
 
-Um retry NÃO DEVE criar cópia adicional da mesma memória.
+Um retry, inclusive simultâneo, NÃO DEVE criar cópia adicional da mesma memória.
 
-## 13. Inferências
+## 14. Inferências
 
 Uma inferência DEVE ter evidências relacionadas.
 
@@ -166,17 +175,27 @@ Uma inferência DEVE poder ser revisada.
 
 Uma inferência NÃO DEVE usar `certainty = confirmed` sem evidência suficiente.
 
-## 14. Auditoria
+## 15. Auditoria
 
 Mudanças persistentes DEVEM gerar auditoria automática quando suportado.
 
-O log NÃO DEVE duplicar conteúdo pessoal completo sem necessidade.
+O log DEVE manter estrutura e hashes.
 
-## 15. Segurança
+O log NÃO DEVE duplicar texto pessoal, nomes, aliases ou JSON sensível em claro.
+
+## 16. Integridade
+
+Use `brain_integrity_report(...)` em revisão periódica ou quando houver suspeita de inconsistência.
+
+Investigue duplicata candidata antes de mesclar entidades.
+
+## 17. Segurança
 
 NÃO registre senha, token, chave de API, código de autenticação ou credencial.
 
-## 16. Saídas
+Clientes normais NÃO DEVEM alterar diretamente as tabelas da memória.
+
+## 18. Saídas
 
 - novo registro;
 - atualização;
@@ -186,7 +205,7 @@ NÃO registre senha, token, chave de API, código de autenticação ou credencia
 - memória consolidada;
 - nenhuma ação.
 
-## 17. Escrita
+## 19. Escrita
 
 Use ASD-STE100 adaptado em conteúdo normalizado.
 
