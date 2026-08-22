@@ -6,7 +6,25 @@ Definir as operações seguras que agentes DEVEM usar para ler e gravar memória
 
 PREFIRA estas funções a SQL livre quando a função aplicável existir.
 
-## 2. Escrita principal
+## 2. Identidade do Brain
+
+Antes da primeira operação persistente em uma execução, use:
+
+`get_primary_brain_identity()`
+
+A função retorna:
+
+- `owner_id`;
+- `self_entity_id`;
+- nome lógico do Brain.
+
+NÃO grave `owner_id` em instruções do Projeto.
+
+NÃO memorize o UUID como dado pessoal.
+
+Resolva a identidade em tempo de execução.
+
+## 3. Escrita principal
 
 Use:
 
@@ -26,7 +44,7 @@ O pacote PODE conter:
 - `entity_relations`;
 - `historical_record_relations`.
 
-## 3. Idempotência
+## 4. Idempotência
 
 `idempotency_key` DEVE identificar uma operação lógica.
 
@@ -36,7 +54,7 @@ NÃO reutilize a chave para operação diferente.
 
 Uma ingestão concluída retorna o resultado existente em novo retry.
 
-## 4. Fonte
+## 5. Fonte
 
 Exemplo:
 
@@ -53,7 +71,7 @@ Exemplo:
 
 NÃO aplique ASD-STE100 ao texto original da fonte.
 
-## 5. Entidades
+## 6. Entidades
 
 Cada entidade nova no pacote DEVE ter `client_key`.
 
@@ -79,7 +97,7 @@ Use `self` como referência à entidade canônica do usuário.
 
 NÃO crie nova entidade antes de verificar duplicata.
 
-## 6. Registros
+## 7. Registros
 
 Cada registro novo DEVE ter:
 
@@ -108,7 +126,7 @@ Exemplo:
 }
 ```
 
-## 7. Ligações entre registro e entidade
+## 8. Ligações entre registro e entidade
 
 Use `record_entities`.
 
@@ -122,7 +140,7 @@ Exemplo:
 }
 ```
 
-## 8. Relações internas do pacote
+## 9. Relações internas do pacote
 
 Use `record_relations` quando os dois registros forem criados no mesmo pacote.
 
@@ -136,7 +154,7 @@ Exemplo:
 }
 ```
 
-## 9. Relações com histórico
+## 10. Relações com histórico
 
 Use `historical_record_relations` quando um lado da relação já existir no banco.
 
@@ -155,7 +173,7 @@ Exemplo:
 }
 ```
 
-## 10. Resolução de entidade
+## 11. Resolução de entidade
 
 Use:
 
@@ -173,7 +191,7 @@ Ela NÃO prova identidade.
 
 PERGUNTE quando duas entidades continuarem plausíveis e a distinção for material.
 
-## 11. Busca de memória
+## 12. Busca de memória
 
 Use:
 
@@ -192,7 +210,7 @@ A função NÃO retorna registros com:
 - `lifecycle = deleted`;
 - `validity = retracted`.
 
-## 12. Contexto de registro
+## 13. Contexto de registro
 
 Use:
 
@@ -210,7 +228,7 @@ Use `include_raw_source = false` por padrão.
 
 Use `true` somente quando a evidência original for necessária.
 
-## 13. Correção e mudança
+## 14. Correção e mudança
 
 Use:
 
@@ -230,7 +248,7 @@ Nesse caso, o registro antigo recebe:
 - `lifecycle = superseded`;
 - `validity = outdated`.
 
-## 14. Exclusão lógica
+## 15. Exclusão lógica
 
 Use:
 
@@ -247,7 +265,7 @@ Ela também encerra relações ativas do registro.
 
 NÃO use `DELETE FROM records` como operação normal.
 
-## 15. Auditoria
+## 16. Auditoria
 
 Mudanças importantes em tabelas principais geram auditoria automática.
 
@@ -255,7 +273,7 @@ Conteúdo textual e JSON sensível DEVEM aparecer no log como hash quando aplic�
 
 O log de auditoria NÃO DEVE ser alterado por clientes normais.
 
-## 16. Segurança
+## 17. Segurança
 
 As funções operacionais são destinadas ao backend privilegiado.
 
@@ -263,7 +281,9 @@ NÃO exponha `service_role` ao cliente.
 
 RLS DEVE permanecer ativo.
 
-## 17. Regra final
+## 18. Regra final
+
+RESOLVA a identidade do Brain.
 
 RECUPERE antes de criar.
 
