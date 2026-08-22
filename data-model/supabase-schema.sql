@@ -14,6 +14,11 @@
 -- 20260822074836_004_security_hardening.sql
 -- 20260822074910_005_audit_privacy_and_performance.sql
 -- 20260822075252_006_fix_audit_digest_schema.sql
+-- 20260822083042_007_ingest_memory_bundle.sql
+-- 20260822083204_008_ingest_wrapper_and_historical_relations.sql
+-- 20260822083432_009_retrieval_api.sql
+-- 20260822083539_010_record_lifecycle_operations.sql
 --
 -- See data-model/OVERVIEW.md for the logical model.
+-- See docs/SUPABASE-API.md for the operational API.
 -- See supabase/README.md for operational database rules.
