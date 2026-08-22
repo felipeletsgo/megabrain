@@ -11,23 +11,59 @@ ATIVE quando o usuário pedir para apagar, esquecer ou remover informação pers
 ## 3. Procedimento
 
 1. Identifique os registros alvo.
-2. Identifique dependências.
-3. Determine se a exclusão é lógica ou física.
-4. Informe efeitos relevantes quando necessário.
-5. Execute a exclusão autorizada.
-6. Remova ou ajuste referências dependentes.
-7. Confirme o resultado quando útil.
+2. Recupere dependências e relações.
+3. Determine o alcance da solicitação.
+4. Determine se exclusão lógica é suficiente.
+5. Informe efeitos relevantes quando necessário.
+6. Use `soft_delete_record(...)` para excluir um registro da memória ativa.
+7. Verifique se outros registros ainda contêm a informação que o usuário pediu para esquecer.
+8. Confirme o resultado quando útil.
 
 ## 4. Regras
 
 NÃO mantenha informação excluída como memória ativa.
 
-PREFIRA exclusão lógica quando histórico técnico for necessário e permitido.
+PREFIRA `soft_delete_record(...)` para exclusão normal de registro.
 
-NÃO preserve conteúdo que o usuário pediu para esquecer quando isso contrariar a solicitação.
+NÃO use `DELETE FROM records` como operação comum.
 
-A exclusão DEVE respeitar limitações da ferramenta e regras de segurança.
+A exclusão lógica DEVE definir:
 
-## 5. Escrita
+- `lifecycle = deleted`;
+- `validity = retracted`.
+
+Relações ativas ligadas ao registro excluído DEVEM deixar de participar da recuperação normal.
+
+NÃO trate exclusão de um único registro como exclusão completa de uma pessoa, assunto ou período.
+
+Uma solicitação ampla como `esqueça tudo sobre esta pessoa` DEVE recuperar dependências antes de alterar dados.
+
+Exclusão física DEVE ser um fluxo separado.
+
+O fluxo de exclusão física ainda NÃO DEVE ser executado automaticamente.
+
+NÃO preserve conteúdo que o usuário pediu para esquecer quando isso contrariar a solicitação válida e puder ser removido pela ferramenta.
+
+## 5. Ferramentas
+
+Use:
+
+- `search_memory(...)` para localizar registros;
+- `get_record_context(...)` para verificar dependências;
+- `soft_delete_record(...)` para exclusão lógica.
+
+## 6. Falhas
+
+Se o alvo for ambíguo:
+
+PERGUNTE antes de remover informação importante.
+
+Se a ferramenta não puder remover todo o conteúdo solicitado:
+
+INFORME a limitação.
+
+NÃO declare exclusão completa sem evidência.
+
+## 7. Escrita
 
 Use ASD-STE100 adaptado.
