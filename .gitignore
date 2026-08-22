@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+# Local data
+local-data/
+exports/
+backups/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime
+node_modules/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
