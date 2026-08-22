@@ -2,47 +2,79 @@
 
 Sistema pessoal de conhecimento, memória e organização.
 
-## Função
+## Estado
 
-O MegaBrain DEVE:
+A arquitetura documental está criada.
 
-- manter memória persistente;
-- recuperar contexto antes de responder;
-- organizar pessoas, eventos, projetos, objetivos e decisões;
-- usar ferramentas externas para agenda, tarefas e outras funções especializadas;
-- preservar histórico e origem;
-- separar fatos de inferências;
-- usar o Supabase como fonte de verdade dos dados estruturados.
+O schema do Supabase está em revisão e NÃO DEVE ser aplicado sem aprovação explícita.
 
 ## Arquitetura
 
 ```text
 ChatGPT Project
-├── Instruções do Projeto
-├── GitHub: regras, skills e arquitetura
+├── GitHub: lógica do sistema
 ├── Supabase: memória persistente
-└── Ferramentas externas
-    ├── Calendar
-    ├── Tasks
-    ├── Gmail
-    └── Contacts
+└── Ferramentas externas: agenda, tarefas, e-mail e contatos
 ```
 
-## Diretórios
+## Fonte de verdade
 
-- `core/` — regras obrigatórias e roteamento.
-- `skills/` — procedimentos especializados.
-- `data-model/` — modelo lógico e schema do Supabase.
-- `docs/` — arquitetura e instruções operacionais.
+- GitHub DEVE conter regras, skills, arquitetura e schema.
+- Supabase DEVE conter dados pessoais persistentes.
+- Ferramentas especializadas DEVEM manter seus dados operacionais atuais.
+
+Dados pessoais NÃO DEVEM ser gravados neste repositório.
 
 ## Ordem de leitura
 
-1. `core/RULES.md`
-2. `core/TERMINOLOGY.md`
-3. `core/SKILL-CATALOG.md`
-4. `core/SKILL-ROUTER.md`
-5. `core/SKILL-SPEC.md`
-6. skill aplicável em `skills/`
+1. `AGENTS.md`
+2. `core/RULES.md`
+3. `core/TERMINOLOGY.md`
+4. `core/SKILL-CATALOG.md`
+5. `core/SKILL-ROUTER.md`
+6. `core/SKILL-SPEC.md`
+7. skill aplicável em `skills/`
+8. documentação do modelo em `data-model/`
+
+## Diretórios
+
+### `core/`
+
+Contém regras obrigatórias, terminologia, catálogo, roteador e padrão de skill.
+
+### `skills/`
+
+Contém os procedimentos especializados do sistema.
+
+### `data-model/`
+
+Contém o modelo lógico, tipos de registro, relações, memória, busca semântica e schema SQL.
+
+### `docs/`
+
+Contém arquitetura, bootstrap e instruções do Projeto ChatGPT.
+
+## Projeto ChatGPT
+
+Use `docs/PROJECT-INSTRUCTIONS.md` como base para as Instruções do Projeto.
+
+Use `docs/BOOTSTRAP.md` para configurar as integrações.
+
+## Supabase
+
+O arquivo `data-model/supabase-schema.sql` contém o schema inicial.
+
+Ele usa:
+
+- `sources`;
+- `entities`;
+- `entity_aliases`;
+- `records`;
+- `record_entities`;
+- `entity_relations`;
+- `record_relations`;
+- `audit_log`;
+- RLS por `owner_id`.
 
 ## Escrita
 
@@ -55,3 +87,9 @@ Use voz ativa.
 Use um termo por conceito.
 
 Use `DEVE`, `NÃO DEVE`, `PODE` e `PREFIRA` para indicar obrigação.
+
+## Segurança
+
+LEIA `SECURITY.md`.
+
+NÃO grave credenciais ou dados pessoais neste repositório.
