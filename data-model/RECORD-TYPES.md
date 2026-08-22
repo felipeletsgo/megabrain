@@ -4,7 +4,7 @@
 
 Definir valores controlados para `records.record_type`.
 
-## 2. Tipos iniciais
+## 2. Tipos V1
 
 ### `fact`
 Informação apresentada como verdadeira.
@@ -21,6 +21,12 @@ Condição temporária.
 ### `preference`
 Preferência persistente ou contextual.
 
+### `opinion`
+Avaliação subjetiva atribuída a uma fonte.
+
+### `hypothesis`
+Possibilidade ainda não confirmada.
+
 ### `goal`
 Resultado desejado.
 
@@ -29,6 +35,9 @@ Iniciativa com várias ações.
 
 ### `decision`
 Escolha realizada.
+
+### `plan`
+Intenção futura ainda não executada.
 
 ### `task`
 Ação executável.
@@ -75,9 +84,39 @@ Síntese sustentada por várias evidências.
 ### `inference`
 Conclusão produzida pelo sistema.
 
-## 3. Campos específicos
+## 3. Estado epistemológico
+
+Use `certainty` para certeza:
+
+- `confirmed`
+- `probable`
+- `uncertain`
+
+Use `validity` para validade:
+
+- `current`
+- `outdated`
+- `disputed`
+- `retracted`
+
+Use `lifecycle` para ciclo de vida técnico:
+
+- `active`
+- `archived`
+- `superseded`
+- `deleted`
+
+Use `domain_status` para o estado específico do tipo.
+
+Exemplo:
+
+Um objetivo PODE usar `domain_status = 'paused'` sem alterar `lifecycle = 'active'`.
+
+## 4. Campos específicos
 
 Use `attributes JSONB` para campos específicos do tipo.
+
+NÃO use `attributes` para substituir campos comuns que precisam de consulta consistente.
 
 Exemplo para `financial_transaction`:
 
@@ -100,7 +139,15 @@ Exemplo para `state`:
 }
 ```
 
-## 4. Regra
+## 5. Conteúdo
+
+Use `normalized_content` para a representação normalizada.
+
+A origem literal PODE permanecer em `sources.raw_excerpt`.
+
+NÃO transforme uma hipótese em fato ao normalizar conteúdo.
+
+## 6. Regra final
 
 NÃO crie novo `record_type` apenas para armazenar um campo diferente.
 
