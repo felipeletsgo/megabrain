@@ -18,6 +18,7 @@
 -- 20260822083204_008_ingest_wrapper_and_historical_relations.sql
 -- 20260822083432_009_retrieval_api.sql
 -- 20260822083539_010_record_lifecycle_operations.sql
+-- 20260822084024_011_primary_brain_identity.sql
 --
 -- See data-model/OVERVIEW.md for the logical model.
 -- See docs/SUPABASE-API.md for the operational API.
