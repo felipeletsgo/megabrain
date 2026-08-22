@@ -23,15 +23,20 @@ NÃO persista conversa trivial sem utilidade futura.
 
 ## 4. Classificação
 
-Use:
+Use, quando aplicável:
 
 - fato;
 - evento;
 - estado;
 - preferência;
-- objetivo;
-- decisão;
+- opinião;
 - hipótese;
+- objetivo;
+- projeto;
+- decisão;
+- plano;
+- tarefa;
+- compromisso;
 - inferência;
 - memória consolidada.
 
@@ -45,14 +50,19 @@ Use:
 6. Verifique duplicatas.
 7. Verifique contradições.
 8. Determine se deve criar ou atualizar.
-9. REGISTRE origem.
-10. REGISTRE confiança quando necessário.
-11. RELACIONE evidências.
-12. Grave a informação.
+9. Determine `certainty`.
+10. Determine `validity`.
+11. Determine `lifecycle`.
+12. REGISTRE origem.
+13. RELACIONE fontes e evidências.
+14. Use idempotência quando houver risco de retry.
+15. Grave a informação na fonte apropriada.
 
 ## 6. Regras
 
 REGISTRE informação quando ela ajudar a responder perguntas futuras, explicar contexto, acompanhar mudança, decisão, objetivo, relação ou padrão.
+
+Quando a informação for classificada como persistente e não houver impedimento de segurança ou ferramenta, a skill DEVE gravá-la.
 
 NÃO transforme estado isolado em característica permanente.
 
@@ -60,17 +70,41 @@ NÃO transforme inferência em fato.
 
 PRESERVE histórico relevante.
 
-## 7. Confiança
+## 7. Certeza
 
-Use:
+Use `certainty`:
 
 - `confirmed`
 - `probable`
 - `uncertain`
-- `contradictory`
-- `outdated`
 
-## 8. Origem
+NÃO use certeza para representar conflito ou informação antiga.
+
+## 8. Validade
+
+Use `validity`:
+
+- `current`
+- `outdated`
+- `disputed`
+- `retracted`
+
+## 9. Ciclo de vida
+
+Use `lifecycle` para estado técnico do registro.
+
+PREFIRA:
+
+- `active`
+- `archived`
+- `superseded`
+- `deleted`
+
+Use `domain_status` para estado específico do tipo.
+
+## 10. Origem
+
+Use `sources`.
 
 PREFIRA:
 
@@ -82,26 +116,43 @@ PREFIRA:
 - `database`
 - `integration`
 - `inference`
+- `manual`
 
-## 9. Persistência
+Um registro PODE ter várias fontes por `record_sources`.
 
-CRIE novo registro para novo evento, nova entidade, nova decisão, novo objetivo ou novo estado temporal.
+Use `raw_excerpt` quando for necessário preservar conteúdo original.
 
-ATUALIZE quando houver novo detalhe, correção, mudança de estado ou nova evidência.
+Use `normalized_content` para representação normalizada.
+
+## 11. Persistência
+
+CRIE novo registro para nova unidade de informação com identidade temporal ou semântica própria.
+
+ATUALIZE quando houver detalhe adicional sem necessidade de preservar versão separada.
+
+Use relação `supersedes` quando uma nova versão substituir informação histórica relevante.
 
 NÃO sobrescreva histórico relevante.
 
-## 10. Inferências
+## 12. Inferências
 
 Uma inferência DEVE ter evidências relacionadas.
 
 Uma inferência DEVE poder ser revisada.
 
-## 11. Segurança
+Uma inferência NÃO DEVE usar `certainty = confirmed` sem evidência suficiente.
+
+## 13. Auditoria
+
+Mudanças persistentes DEVEM gerar auditoria automática quando suportado.
+
+O log NÃO DEVE duplicar conteúdo pessoal completo sem necessidade.
+
+## 14. Segurança
 
 NÃO registre senha, token, chave de API, código de autenticação ou credencial.
 
-## 12. Saídas
+## 15. Saídas
 
 - novo registro;
 - atualização;
@@ -111,9 +162,11 @@ NÃO registre senha, token, chave de API, código de autenticação ou credencia
 - memória consolidada;
 - nenhuma ação.
 
-## 13. Escrita
+## 16. Escrita
 
-Use ASD-STE100 adaptado.
+Use ASD-STE100 adaptado em conteúdo normalizado.
+
+NÃO reescreva conteúdo original de fonte apenas para cumprir o padrão documental.
 
 REGISTRE menos.
 
