@@ -6,9 +6,9 @@ Sistema pessoal de conhecimento, memória e organização.
 
 A arquitetura documental está criada.
 
-O núcleo V1 do Supabase está ativo.
+O núcleo V1 do Supabase está ativo e validado.
 
-A base contém proprietário lógico, entidade `self`, fontes, registros, relações, auditoria, idempotência, RLS e busca textual.
+A base contém proprietário lógico, entidade `self`, fontes, registros, relações, auditoria, idempotência, RLS, busca textual, ingestão atômica, recuperação e operações seguras de ciclo de vida.
 
 Busca semântica com embeddings ainda NÃO está ativa.
 
@@ -33,19 +33,21 @@ Dados pessoais NÃO DEVEM ser gravados neste repositório.
 
 1. `AGENTS.md`
 2. `core/RULES.md`
-3. `core/TERMINOLOGY.md`
-4. `core/SKILL-CATALOG.md`
-5. `core/SKILL-ROUTER.md`
-6. `core/SKILL-SPEC.md`
-7. skill aplicável em `skills/`
-8. documentação do modelo em `data-model/`
-9. migrations em `supabase/migrations/`
+3. `core/RUNTIME.md`
+4. `core/TERMINOLOGY.md`
+5. `core/SKILL-CATALOG.md`
+6. `core/SKILL-ROUTER.md`
+7. `core/SKILL-SPEC.md`
+8. skill aplicável em `skills/`
+9. `docs/SUPABASE-API.md` para operações persistentes
+10. documentação do modelo em `data-model/`
+11. migrations em `supabase/migrations/`
 
 ## Diretórios
 
 ### `core/`
 
-Contém regras obrigatórias, terminologia, catálogo, roteador e padrão de skill.
+Contém regras obrigatórias, kernel de runtime, terminologia, catálogo, roteador e padrão de skill.
 
 ### `skills/`
 
@@ -61,7 +63,7 @@ Contém as migrations aplicadas ao banco.
 
 ### `docs/`
 
-Contém arquitetura, bootstrap e instruções do Projeto ChatGPT.
+Contém arquitetura, bootstrap, API operacional e instruções do Projeto ChatGPT.
 
 ## Supabase V1
 
@@ -91,6 +93,19 @@ RLS está ativo em todas as tabelas pessoais.
 O `audit_log` é append-only para clientes autenticados.
 
 Conteúdo pessoal completo NÃO DEVE ser duplicado no log de auditoria.
+
+## API operacional
+
+PREFIRA:
+
+- `ingest_memory_bundle(...)` — ingestão atômica;
+- `find_entities(...)` — resolução de entidade;
+- `search_memory(...)` — recuperação;
+- `get_record_context(...)` — fontes e relações;
+- `supersede_record(...)` — correção ou mudança histórica;
+- `soft_delete_record(...)` — exclusão lógica.
+
+LEIA `docs/SUPABASE-API.md` antes de criar nova operação persistente.
 
 ## Projeto ChatGPT
 
