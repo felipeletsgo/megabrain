@@ -38,7 +38,7 @@ Síntese persistente derivada de vários registros.
 Entidade humana identificável.
 
 ### Relação
-Ligação entre duas entidades.
+Ligação entre objetos persistentes.
 
 ### Organização
 Empresa, instituição, grupo ou entidade coletiva.
@@ -77,27 +77,61 @@ Condição que exige resolução ou acompanhamento.
 Possibilidade que pode gerar ação futura.
 
 ### Evidência
-Registro que sustenta uma afirmação ou inferência.
+Registro ou fonte que sustenta uma afirmação ou inferência.
 
 ### Origem
 Fonte de onde a informação veio.
 
-### Confiança
-Nível de certeza associado ao registro.
+### Certeza
+Nível de certeza epistemológica associado ao registro.
 
-## 3. Estados de confiança
+### Validade
+Estado atual da validade da informação.
+
+### Ciclo de vida
+Estado técnico do objeto persistente.
+
+### Estado de domínio
+Estado específico do tipo de registro.
+
+## 3. Certeza
 
 Use somente:
 
 - `confirmed`
 - `probable`
 - `uncertain`
-- `contradictory`
+
+## 4. Validade
+
+Use somente:
+
+- `current`
 - `outdated`
+- `disputed`
+- `retracted`
 
-## 4. Origem
+## 5. Ciclo de vida de registro e relação
 
-PREFIRA:
+Use somente:
+
+- `active`
+- `archived`
+- `superseded`
+- `deleted`
+
+## 6. Ciclo de vida de entidade
+
+Use somente:
+
+- `active`
+- `archived`
+- `merged`
+- `deleted`
+
+## 7. Origem
+
+Use, quando aplicável:
 
 - `conversation`
 - `calendar`
@@ -107,7 +141,18 @@ PREFIRA:
 - `database`
 - `integration`
 - `inference`
+- `manual`
 
-## 5. Regra final
+## 8. Conteúdo de fonte
+
+`raw_excerpt` representa conteúdo original preservado da fonte.
+
+`normalized_content` representa conteúdo normalizado para uso do sistema.
+
+ASD-STE100 adaptado DEVE ser aplicado a `normalized_content`.
+
+NÃO reescreva `raw_excerpt` apenas para adequar o texto ao padrão documental.
+
+## 9. Regra final
 
 Se um novo conceito exigir novo termo, documente o termo neste arquivo antes de usar variantes em várias skills.
