@@ -9,44 +9,78 @@ Definir como informação se transforma em memória persistente.
 Use estas camadas:
 
 1. entrada de conversa ou ferramenta;
-2. registro bruto ou factual;
-3. relação com entidades;
-4. memória útil;
-5. memória consolidada;
-6. reflexão e revisão.
+2. fonte;
+3. registro factual ou temporal;
+4. relação com entidades;
+5. memória útil;
+6. memória consolidada;
+7. reflexão e revisão.
 
-## 3. Registro factual
+## 3. Fonte
 
-Um fato ou evento DEVE preservar origem e tempo quando disponíveis.
+A fonte DEVE representar a origem da informação.
 
-## 4. Memória
+Use `sources.raw_excerpt` quando for necessário preservar conteúdo original.
+
+NÃO altere conteúdo original apenas para cumprir o padrão documental.
+
+## 4. Registro
+
+Um registro DEVE preservar origem e tempo quando disponíveis.
+
+Use `records.normalized_content` para representação normalizada.
+
+Um registro PODE ter várias fontes por `record_sources`.
+
+## 5. Estado epistemológico
+
+Use `certainty` para certeza:
+
+- `confirmed`
+- `probable`
+- `uncertain`
+
+Use `validity` para validade:
+
+- `current`
+- `outdated`
+- `disputed`
+- `retracted`
+
+Use `lifecycle` para ciclo de vida técnico.
+
+NÃO misture certeza, conflito e validade temporal.
+
+## 6. Memória
 
 Uma memória DEVE ter valor futuro.
 
 Uma memória PODE resumir um ou mais registros.
 
-## 5. Inferência
+## 7. Inferência
 
 Uma inferência DEVE:
 
 - ser identificada como inferência;
-- possuir confiança;
+- possuir `certainty`;
 - possuir evidências;
 - poder ser invalidada.
 
-## 6. Memória consolidada
+## 8. Memória consolidada
 
 Uma memória consolidada DEVE representar síntese sustentada por várias evidências.
 
 NÃO apague as evidências após consolidar.
 
-## 7. Contradição
+## 9. Contradição
 
 Use `record_relations.relation_type = 'contradicts'` quando dois registros forem incompatíveis e a causa ainda não estiver resolvida.
 
+Use `validity = 'disputed'` quando a validade atual estiver em conflito.
+
 Use `supersedes` quando um registro substituir outro por mudança temporal ou correção.
 
-## 8. Validade
+## 10. Validade temporal
 
 Use:
 
@@ -57,27 +91,39 @@ Use:
 
 NÃO use `created_at` como substituto de data do acontecimento.
 
-## 9. Confiança
+## 11. Idempotência
 
-Use:
+Use `ingestion_batches.idempotency_key` para operações compostas.
 
-- `confirmed`
-- `probable`
-- `uncertain`
-- `contradictory`
-- `outdated`
+Use `records.idempotency_key` para registros individuais quando necessário.
 
-## 10. Busca semântica
+Retries NÃO DEVEM criar memórias duplicadas.
+
+## 12. Auditoria
+
+Mudanças persistentes DEVEM ser auditáveis.
+
+O log técnico NÃO DEVE duplicar conteúdo pessoal completo sem necessidade.
+
+PREFIRA hash para conteúdo que não precisa ser reproduzido no histórico.
+
+## 13. Busca textual
+
+A V1 usa Full Text Search do PostgreSQL em português.
+
+Use `records.search_document` para recuperação textual.
+
+## 14. Busca semântica
 
 Busca semântica PODE ser adicionada com `pgvector`.
 
 Embeddings DEVEM ser derivados do conteúdo persistente.
 
-O texto original DEVE continuar sendo a fonte de verdade.
+O texto original DEVE continuar sendo fonte de evidência.
 
 NÃO use similaridade vetorial como prova de relação factual.
 
-## 11. Consolidação
+## 15. Consolidação
 
 Revisão diária PODE gerar memórias candidatas.
 
