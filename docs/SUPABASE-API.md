@@ -2,13 +2,17 @@
 
 ## 1. Objetivo
 
-Definir as operações seguras que agentes DEVEM usar para ler e gravar memória.
+Definir operações seguras para ler e gravar memória.
 
-PREFIRA estas funções a SQL livre quando a função aplicável existir.
+PREFIRA estas funções a SQL livre.
+
+Clientes autenticados DEVEM tratar as tabelas de memória como somente leitura.
+
+Mutações DEVEM ocorrer pelo backend autorizado.
 
 ## 2. Identidade do Brain
 
-Antes da primeira operação persistente em uma execução, use:
+Antes da primeira operação persistente da execução, use:
 
 `get_primary_brain_identity()`
 
@@ -18,9 +22,7 @@ A função retorna:
 - `self_entity_id`;
 - nome lógico do Brain.
 
-NÃO grave `owner_id` em instruções do Projeto.
-
-NÃO memorize o UUID como dado pessoal.
+NÃO fixe `owner_id` nas Instruções do Projeto.
 
 Resolva a identidade em tempo de execução.
 
@@ -32,7 +34,9 @@ Use:
 
 A função grava uma unidade lógica de memória.
 
-A função DEVE preservar atomicidade da ingestão.
+A função usa bloqueio transacional por chave de idempotência.
+
+Duas tentativas simultâneas da mesma operação NÃO DEVEM gerar duplicatas.
 
 O pacote PODE conter:
 
@@ -48,54 +52,31 @@ O pacote PODE conter:
 
 `idempotency_key` DEVE identificar uma operação lógica.
 
-Use a mesma chave em retry da mesma operação.
+Use a mesma chave no retry da mesma operação.
 
 NÃO reutilize a chave para operação diferente.
 
-Uma ingestão concluída retorna o resultado existente em novo retry.
-
 ## 5. Fonte
 
-Exemplo:
+Use `external_id` quando a fonte tiver identificador estável.
 
-```json
-{
-  "source_type": "conversation",
-  "external_id": "conversation-message-id",
-  "title": "Relato do usuário",
-  "raw_excerpt": "Texto original quando necessário"
-}
-```
+PREFIRA `raw_excerpt` somente quando a evidência original tiver valor futuro.
 
-`raw_excerpt` PODE preservar o texto original.
+NÃO grave a conversa completa por padrão.
 
-NÃO aplique ASD-STE100 ao texto original da fonte.
+Conteúdo original de fonte NÃO DEVE ser reescrito para ASD-STE100.
 
 ## 6. Entidades
 
 Cada entidade nova no pacote DEVE ter `client_key`.
 
-Exemplo:
-
-```json
-{
-  "client_key": "person_ana",
-  "entity_type": "person",
-  "canonical_name": "Ana",
-  "aliases": [
-    {
-      "alias": "Aninha",
-      "alias_type": "nickname"
-    }
-  ]
-}
-```
-
 Use `entity_id` quando a entidade já existir.
 
 Use `self` como referência à entidade canônica do usuário.
 
-NÃO crie nova entidade antes de verificar duplicata.
+CONSULTE `find_entities(...)` antes de criar pessoa, organização ou lugar relevante.
+
+NÃO una entidades ambíguas automaticamente.
 
 ## 7. Registros
 
@@ -107,110 +88,112 @@ Cada registro novo DEVE ter:
 PREFIRA também:
 
 - `normalized_content`;
-- `record_date` ou `occurred_at` quando aplicável;
+- data aplicável;
 - `certainty`;
 - `validity`;
 - `domain_status` quando aplicável.
 
-Exemplo:
+### Autoridade operacional
 
-```json
-{
-  "client_key": "event_1",
-  "record_type": "event",
-  "title": "Conversa com Ana",
-  "normalized_content": "Conversou com Ana sobre o Projeto Atlas.",
-  "record_date": "2026-08-22",
-  "certainty": "confirmed",
-  "validity": "current"
-}
-```
+Use estes campos quando outra ferramenta for a fonte operacional atual:
 
-## 8. Ligações entre registro e entidade
+- `authority_type`;
+- `external_ref`;
+- `sync_state`;
+- `last_synced_at`.
 
-Use `record_entities`.
+`authority_type` PODE ser:
 
-Exemplo:
+- `supabase`;
+- `calendar`;
+- `task_manager`;
+- `email`;
+- `contacts`;
+- `file`;
+- `integration`;
+- `external`.
 
-```json
-{
-  "record": "event_1",
-  "entity": "person_ana",
-  "role": "participant"
-}
-```
+`sync_state` PODE ser:
 
-## 9. Relações internas do pacote
+- `native`;
+- `linked`;
+- `stale`;
+- `error`.
 
-Use `record_relations` quando os dois registros forem criados no mesmo pacote.
+Para compromisso atual, PREFIRA calendário.
 
-Exemplo:
+Para tarefa ativa, PREFIRA gerenciador de tarefas.
 
-```json
-{
-  "source_record": "state_1",
-  "target_record": "event_1",
-  "relation_type": "related_to"
-}
-```
+## 8. Vocabulário de relações
 
-## 10. Relações com histórico
+NÃO invente `relation_type` ou `role`.
 
-Use `historical_record_relations` quando um lado da relação já existir no banco.
+Consulte:
 
-Uma referência PODE ser:
+- `record_entity_role_catalog`;
+- `record_relation_type_catalog`;
+- `entity_relation_type_catalog`.
 
-- `client_key` de registro novo;
-- UUID de registro existente.
+O banco rejeita valor fora do catálogo.
 
-Exemplo:
+Isso reduz sinônimos técnicos e deriva de nomenclatura.
 
-```json
-{
-  "source_record": "new_preference",
-  "target_record": "UUID-DO-REGISTRO-ANTIGO",
-  "relation_type": "supersedes"
-}
-```
-
-## 11. Resolução de entidade
+## 9. Resolução de entidade
 
 Use:
 
 `find_entities(owner_id, query, entity_types, limit)`
 
-A função pesquisa:
+A busca considera:
 
 - nome canônico;
 - alias;
-- tipo de entidade.
+- correspondência parcial;
+- similaridade de texto.
 
-A pontuação é um indicador de correspondência.
+A pontuação gera candidatos.
 
-Ela NÃO prova identidade.
+Ela NÃO confirma identidade.
 
-PERGUNTE quando duas entidades continuarem plausíveis e a distinção for material.
-
-## 12. Busca de memória
+## 10. Busca histórica
 
 Use:
 
 `search_memory(owner_id, query, record_types, entity_ids, from, to, limit)`
 
-A função suporta:
+A função combina:
 
-- busca textual em português;
+- full-text em português;
+- correspondência parcial;
+- similaridade trigram;
 - filtro por tipo;
 - filtro por entidade;
-- filtro temporal;
-- ordenação por relevância e tempo.
+- filtro temporal.
 
-A função NÃO retorna registros com:
+Ela NÃO retorna registro `deleted` ou `retracted`.
 
-- `lifecycle = deleted`;
-- `validity = retracted`.
+Ela PODE retornar histórico `outdated` ou `superseded`.
 
-## 13. Contexto de registro
+## 11. Busca de estado atual
+
+Use:
+
+`search_current_memory(owner_id, query, record_types, entity_ids, limit)`
+
+PREFIRA esta função quando a pergunta for sobre:
+
+- estado atual;
+- preferência atual;
+- projeto atual;
+- objetivo ativo;
+- situação vigente.
+
+Ela retorna somente:
+
+- `lifecycle = active`;
+- `validity = current`.
+
+## 12. Contexto de registro
 
 Use:
 
@@ -226,62 +209,104 @@ A função retorna:
 
 Use `include_raw_source = false` por padrão.
 
-Use `true` somente quando a evidência original for necessária.
-
-## 14. Correção e mudança
+## 13. Correção e mudança
 
 Use:
 
 `supersede_record(owner_id, old_record_id, new_record_id, is_correction, source_id)`
 
-Use `is_correction = true` quando o registro antigo estava incorreto.
+Use `is_correction = true` para informação anterior incorreta.
 
-Nesse caso, o registro antigo recebe:
-
-- `lifecycle = superseded`;
-- `validity = retracted`.
+O registro antigo recebe `validity = retracted`.
 
 Use `is_correction = false` para mudança temporal válida.
 
-Nesse caso, o registro antigo recebe:
+O registro antigo recebe `validity = outdated`.
 
-- `lifecycle = superseded`;
-- `validity = outdated`.
-
-## 15. Exclusão lógica
+## 14. Exclusão lógica
 
 Use:
 
 `soft_delete_record(owner_id, record_id, reason)`
 
-A função remove o registro da memória ativa.
+A função remove o registro da recuperação normal.
 
-Ela define:
+Ela NÃO apaga o conteúdo físico do registro.
 
-- `lifecycle = deleted`;
-- `validity = retracted`.
+O motivo livre NÃO é preservado no banco.
 
-Ela também encerra relações ativas do registro.
+Quando informado, somente o hash do motivo é mantido.
 
-NÃO use `DELETE FROM records` como operação normal.
+## 15. Esquecimento irreversível
+
+Use:
+
+`forget_record(owner_id, record_id, confirm)`
+
+Use somente quando o usuário pedir remoção real do conteúdo.
+
+A função exige `confirm = true`.
+
+A função:
+
+- remove fisicamente o registro;
+- remove ligações dependentes por integridade referencial;
+- limpa conteúdo e referências externas das fontes ligadas ao registro.
+
+A limpeza da fonte PODE reduzir evidência disponível para outros registros que compartilhavam a mesma fonte.
+
+NÃO use esta função para exclusão normal.
 
 ## 16. Auditoria
 
-Mudanças importantes em tabelas principais geram auditoria automática.
+Mudanças importantes geram auditoria automática.
 
-Conteúdo textual e JSON sensível DEVEM aparecer no log como hash quando aplicável.
+O log guarda estrutura e hashes.
 
-O log de auditoria NÃO DEVE ser alterado por clientes normais.
+O log NÃO DEVE duplicar:
 
-## 17. Segurança
+- texto normalizado;
+- trecho original;
+- nome canônico;
+- alias;
+- título;
+- URI;
+- identificador externo;
+- JSON de atributos ou metadados.
 
-As funções operacionais são destinadas ao backend privilegiado.
+## 17. Integridade
 
-NÃO exponha `service_role` ao cliente.
+Use:
+
+`brain_integrity_report(owner_id)`
+
+A função verifica:
+
+- entidade `self`;
+- batches com falha;
+- entidades duplicadas candidatas;
+- inferências sem evidência;
+- estados epistemológicos incompatíveis;
+- registros externos desatualizados;
+- registros sem fonte.
+
+PREFIRA executar esta verificação em revisão periódica e após mudanças estruturais.
+
+## 18. Segurança
 
 RLS DEVE permanecer ativo.
 
-## 18. Regra final
+Clientes `anon` NÃO DEVEM acessar a memória pessoal.
+
+Clientes `authenticated` DEVEM usar acesso de leitura sujeito a RLS.
+
+NÃO exponha `service_role` ao cliente.
+
+NÃO chame funções internas de ingestão.
+
+Use somente `ingest_memory_bundle(...)` como entrada pública de backend para ingestão composta.
+
+## 19. Regra final
 
 RESOLVA a identidade do Brain.
 
@@ -289,10 +314,14 @@ RECUPERE antes de criar.
 
 GRAVE de forma atômica.
 
+USE vocabulário controlado.
+
 USE idempotência.
 
 PRESERVE origem.
 
 PRESERVE histórico.
+
+USE a fonte operacional atual.
 
 NÃO improvise mutações quando existir operação segura.
