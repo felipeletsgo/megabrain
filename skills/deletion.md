@@ -4,55 +4,96 @@
 
 Remover ou desativar informação conforme solicitação válida do usuário.
 
+Diferencie exclusão lógica de esquecimento irreversível.
+
 ## 2. Ativação
 
-ATIVE quando o usuário pedir para apagar, esquecer ou remover informação persistente.
+ATIVE quando o usuário pedir para:
+
+- apagar;
+- remover;
+- esquecer;
+- deixar de usar uma memória persistente.
 
 ## 3. Procedimento
 
 1. Identifique os registros alvo.
 2. Recupere dependências e relações.
 3. Determine o alcance da solicitação.
-4. Determine se exclusão lógica é suficiente.
-5. Informe efeitos relevantes quando necessário.
-6. Use `soft_delete_record(...)` para excluir um registro da memória ativa.
-7. Verifique se outros registros ainda contêm a informação que o usuário pediu para esquecer.
-8. Confirme o resultado quando útil.
+4. Determine se o usuário quer retirada da memória ativa ou remoção real do conteúdo.
+5. Verifique fontes compartilhadas.
+6. Informe efeito relevante quando necessário.
+7. Execute a operação apropriada.
+8. Verifique se outros registros ainda contêm a informação solicitada.
+9. Confirme o resultado quando útil.
 
-## 4. Regras
+## 4. Exclusão lógica
 
-NÃO mantenha informação excluída como memória ativa.
+Use:
 
-PREFIRA `soft_delete_record(...)` para exclusão normal de registro.
+`soft_delete_record(...)`
 
-NÃO use `DELETE FROM records` como operação comum.
+Use quando o registro deve deixar de participar da memória ativa, mas o histórico técnico pode permanecer.
 
-A exclusão lógica DEVE definir:
+A função define:
 
 - `lifecycle = deleted`;
 - `validity = retracted`.
 
-Relações ativas ligadas ao registro excluído DEVEM deixar de participar da recuperação normal.
+O conteúdo físico do registro PODE permanecer.
 
-NÃO trate exclusão de um único registro como exclusão completa de uma pessoa, assunto ou período.
+O motivo livre NÃO DEVE ser persistido.
 
-Uma solicitação ampla como `esqueça tudo sobre esta pessoa` DEVE recuperar dependências antes de alterar dados.
+Quando informado, somente o hash do motivo PODE ser mantido.
 
-Exclusão física DEVE ser um fluxo separado.
-
-O fluxo de exclusão física ainda NÃO DEVE ser executado automaticamente.
-
-NÃO preserve conteúdo que o usuário pediu para esquecer quando isso contrariar a solicitação válida e puder ser removido pela ferramenta.
-
-## 5. Ferramentas
+## 5. Esquecimento irreversível
 
 Use:
 
-- `search_memory(...)` para localizar registros;
-- `get_record_context(...)` para verificar dependências;
-- `soft_delete_record(...)` para exclusão lógica.
+`forget_record(owner_id, record_id, confirm)`
 
-## 6. Falhas
+Use somente quando a solicitação exigir remoção real do conteúdo.
+
+A função exige confirmação explícita por `confirm = true`.
+
+Antes da execução:
+
+1. confirme o alvo;
+2. recupere dependências;
+3. identifique fontes compartilhadas;
+4. siga as regras aplicáveis a ação irreversível.
+
+A função remove fisicamente o registro.
+
+A função limpa conteúdo e referências externas das fontes ligadas ao registro.
+
+Essa limpeza PODE reduzir a evidência disponível para outros registros que compartilhavam a mesma fonte.
+
+## 6. Regras
+
+NÃO mantenha informação esquecida como memória ativa.
+
+NÃO use `DELETE FROM records` manualmente.
+
+NÃO use `forget_record(...)` para limpeza rotineira.
+
+NÃO trate exclusão de um registro como exclusão completa de uma pessoa, assunto ou período.
+
+Uma solicitação como `esqueça tudo sobre esta pessoa` DEVE recuperar todos os registros e relações relevantes antes da alteração.
+
+NÃO declare esquecimento completo sem evidência de que o alcance solicitado foi tratado.
+
+## 7. Ferramentas
+
+Use:
+
+- `find_entities(...)` para resolver a entidade;
+- `search_memory(...)` para localizar registros históricos;
+- `get_record_context(...)` para verificar dependências;
+- `soft_delete_record(...)` para exclusão lógica;
+- `forget_record(...)` para esquecimento irreversível.
+
+## 8. Falhas
 
 Se o alvo for ambíguo:
 
@@ -64,6 +105,6 @@ INFORME a limitação.
 
 NÃO declare exclusão completa sem evidência.
 
-## 7. Escrita
+## 9. Escrita
 
 Use ASD-STE100 adaptado.
