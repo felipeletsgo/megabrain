@@ -4,6 +4,8 @@
 
 Evitar exposição de dados pessoais e credenciais.
 
+Aplicar privilégio mínimo.
+
 ## 2. GitHub
 
 Este repositório DEVE conter somente:
@@ -12,7 +14,8 @@ Este repositório DEVE conter somente:
 - skills;
 - documentação;
 - schema;
-- migrações sem dados pessoais.
+- migrations sem dados pessoais;
+- testes com dados fictícios.
 
 NÃO grave memória pessoal no GitHub.
 
@@ -34,23 +37,61 @@ Use armazenamento de segredos da plataforma apropriada.
 
 RLS DEVE permanecer ativo.
 
-PREFIRA acesso autenticado.
+O papel `anon` NÃO DEVE acessar tabelas pessoais.
 
-NÃO exponha `service_role` em cliente ou documentação.
+O papel `authenticated` DEVE tratar as tabelas de memória como somente leitura.
 
-## 5. Logs
+Mutações da memória DEVEM ocorrer por funções de backend autorizadas.
 
-Logs NÃO DEVEM incluir credenciais.
+NÃO exponha `service_role` em cliente, código público ou documentação com valor de credencial.
 
-Minimize dados pessoais em logs técnicos.
+NÃO conceda execução de função interna de ingestão ao cliente.
 
-## 6. Exportações
+## 5. Auditoria
+
+O `audit_log` DEVE ser append-only para clientes normais.
+
+O log DEVE minimizar conteúdo pessoal.
+
+PREFIRA hash para:
+
+- texto normalizado;
+- trecho original;
+- nome;
+- alias;
+- título;
+- URI;
+- identificador externo;
+- atributos;
+- metadados.
+
+O `search_document` NÃO DEVE permanecer em claro no log de auditoria.
+
+## 6. Exclusão e esquecimento
+
+Exclusão lógica e esquecimento são operações diferentes.
+
+Use `soft_delete_record(...)` para retirada da memória ativa.
+
+Use `forget_record(...)` somente para remoção irreversível explicitamente autorizada.
+
+Antes de esquecer, verifique dependências e fontes compartilhadas.
+
+NÃO declare esquecimento completo sem validar o alcance.
+
+## 7. Fontes externas
+
+Quando uma referência externa puder reexpor conteúdo esquecido, a operação de esquecimento DEVE remover a referência aplicável quando suportado.
+
+NÃO considere a exclusão no Supabase como exclusão automática em Calendar, e-mail, arquivos ou outro serviço externo.
+
+## 8. Exportações
 
 NÃO envie exportação do banco pessoal para este repositório.
 
 Backups DEVEM permanecer em armazenamento privado apropriado.
 
-## 7. Incidente
+## 9. Incidente
 
 Se um segredo for publicado:
 
@@ -59,3 +100,12 @@ Se um segredo for publicado:
 3. remova o segredo do estado atual;
 4. trate o histórico Git como potencialmente comprometido;
 5. revise acessos relacionados.
+
+## 10. Verificação
+
+Após mudança de banco:
+
+1. execute o Security Advisor;
+2. execute testes de invariantes;
+3. execute `brain_integrity_report(...)` quando aplicável;
+4. confirme que migrations e GitHub estão sincronizados.
