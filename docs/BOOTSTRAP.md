@@ -4,7 +4,19 @@
 
 Configurar o Projeto ChatGPT para usar o MegaBrain.
 
-## 2. Pré-requisitos
+## 2. Estado atual
+
+O núcleo V1 do Supabase está aplicado.
+
+RLS está ativo.
+
+A auditoria automática está ativa.
+
+A busca textual está ativa.
+
+Busca semântica ainda NÃO está ativa.
+
+## 3. Pré-requisitos
 
 Conecte:
 
@@ -14,11 +26,11 @@ Conecte:
 - gerenciador de tarefas quando escolhido;
 - Gmail e Contacts quando úteis.
 
-## 3. Instruções do Projeto
+## 4. Instruções do Projeto
 
 Copie o conteúdo operacional de `docs/PROJECT-INSTRUCTIONS.md` para as Instruções do Projeto.
 
-## 4. GitHub
+## 5. GitHub
 
 Use este repositório como fonte de verdade para:
 
@@ -27,43 +39,61 @@ Use este repositório como fonte de verdade para:
 - roteador;
 - skills;
 - arquitetura;
-- schema.
+- migrations.
 
-## 5. Supabase
+## 6. Supabase
 
-NÃO aplique o schema automaticamente.
+Use `supabase/migrations/` como histórico canônico do DDL.
 
-Revise `data-model/supabase-schema.sql`.
+NÃO aplique novamente migrations já registradas.
 
-Após aprovação, aplique o schema no projeto Supabase correto.
+Nova alteração estrutural DEVE criar nova migration.
 
-## 6. Testes iniciais
+## 7. Brain owner
 
-Teste estes cenários após configurar o banco:
+O Brain principal já possui um `brain_owner` lógico.
 
-1. registrar um fato;
-2. registrar um evento;
-3. mencionar a mesma pessoa duas vezes;
-4. corrigir um fato;
-5. criar uma decisão;
-6. consultar `última vez`;
-7. registrar um estado temporário;
-8. confirmar que o estado não virou característica permanente;
-9. pedir origem de uma memória;
-10. pedir exclusão de um registro de teste.
+Ele possui uma entidade `self` do tipo `person`.
 
-## 7. Dados de teste
+O vínculo com Supabase Auth PODE ser criado no futuro.
 
-Use dados fictícios durante validação.
+## 8. Testes executados
 
-NÃO use informação pessoal sensível antes de validar RLS e auditoria.
+O teste transacional V1 validou:
 
-## 8. Próxima fase
+- criação de fonte;
+- criação de entidade;
+- criação de registro;
+- relação entre registro e entidade;
+- busca textual;
+- auditoria automática;
+- redação de conteúdo no log;
+- idempotência.
 
-Após validar o schema principal:
+O teste usou `ROLLBACK`.
 
-1. adicionar busca semântica;
-2. escolher modelo de embedding;
-3. criar revisão diária;
-4. criar revisão semanal;
-5. testar consolidação de memória.
+Dados fictícios NÃO permaneceram no banco.
+
+## 9. Próximos testes
+
+Antes de uso amplo com memória real:
+
+1. testar correção de registro;
+2. testar supersessão;
+3. testar contradição;
+4. testar exclusão lógica;
+5. testar recuperação por pessoa;
+6. testar `última vez`;
+7. testar múltiplas fontes;
+8. testar ingestão composta em uma transação.
+
+## 10. Próxima fase
+
+Após validar o fluxo de memória real:
+
+1. criar operação transacional de ingestão;
+2. adicionar busca semântica;
+3. escolher modelo de embedding;
+4. criar revisão diária;
+5. criar revisão semanal;
+6. testar consolidação de memória.
