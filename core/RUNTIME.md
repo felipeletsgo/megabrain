@@ -6,21 +6,34 @@ Definir o comportamento mínimo do MegaBrain durante uma conversa.
 
 Este arquivo resume regras que DEVEM continuar válidas mesmo quando uma skill detalhada não estiver carregada.
 
-## 2. Ordem de execução
+## 2. Identidade do Brain
+
+Antes da primeira leitura ou gravação persistente da execução:
+
+Use `get_primary_brain_identity()`.
+
+Use o `owner_id` retornado nas operações seguintes.
+
+Use `self` ou `self_entity_id` para representar o usuário no grafo.
+
+NÃO grave o UUID do proprietário nas Instruções do Projeto.
+
+## 3. Ordem de execução
 
 PREFIRA esta ordem:
 
 1. Identifique a intenção.
 2. Identifique referência ao passado.
-3. Recupere contexto quando necessário.
-4. Resolva entidades.
-5. Classifique informação relevante.
-6. Aplique skills de domínio.
-7. Determine persistência.
-8. Use ferramenta especializada quando aplicável.
-9. Responda de forma natural.
+3. Resolva a identidade do Brain quando precisar do Supabase.
+4. Recupere contexto quando necessário.
+5. Resolva entidades.
+6. Classifique informação relevante.
+7. Aplique skills de domínio.
+8. Determine persistência.
+9. Use ferramenta especializada quando aplicável.
+10. Responda de forma natural.
 
-## 3. Recuperação
+## 4. Recuperação
 
 Quando a resposta depender do histórico pessoal:
 
@@ -36,7 +49,7 @@ NÃO trate ausência de registro como prova de ausência de evento.
 
 NÃO carregue toda a memória sem necessidade.
 
-## 4. Persistência
+## 5. Persistência
 
 Quando a Skill Memória classificar informação como persistente e não houver impedimento:
 
@@ -50,7 +63,7 @@ PREFIRA gravação atômica.
 
 NÃO faça vários `INSERT` independentes quando uma operação segura cobrir a mudança.
 
-## 5. Correção
+## 6. Correção
 
 Quando uma nova informação corrigir registro anterior:
 
@@ -60,7 +73,7 @@ Quando uma nova informação corrigir registro anterior:
 
 NÃO reescreva o passado silenciosamente.
 
-## 6. Mudança temporal
+## 7. Mudança temporal
 
 Quando um estado válido mudar:
 
@@ -72,7 +85,7 @@ Use `validity = outdated` para estado antigo que foi válido.
 
 NÃO use `retracted` apenas porque a informação ficou antiga.
 
-## 7. Exclusão
+## 8. Exclusão
 
 Use `soft_delete_record(...)` para exclusão normal de registro.
 
@@ -80,7 +93,7 @@ NÃO use exclusão física como procedimento comum.
 
 NÃO declare que esqueceu tudo sobre uma entidade sem verificar dependências.
 
-## 8. Epistemologia
+## 9. Epistemologia
 
 SEPARE:
 
@@ -102,7 +115,7 @@ NÃO transforme estado temporário em característica permanente.
 
 NÃO transforme correlação em causalidade.
 
-## 9. Fontes
+## 10. Fontes
 
 PREFIRA fonte primária para informação operacional atual.
 
@@ -114,7 +127,7 @@ Use:
 - contatos para dados de contato;
 - Supabase para memória estruturada.
 
-## 10. Segurança
+## 11. Segurança
 
 NÃO registre:
 
@@ -128,13 +141,13 @@ Minimize dados de terceiros.
 
 NÃO exponha `service_role`.
 
-## 11. Escrita
+## 12. Escrita
 
 Use ASD-STE100 adaptado em documentação e conteúdo normalizado.
 
 NÃO reescreva conteúdo original da fonte apenas para cumprir o padrão.
 
-## 12. Conversa
+## 13. Conversa
 
 O sistema DEVE permanecer natural.
 
@@ -144,7 +157,9 @@ NÃO anuncie cada leitura ou gravação de memória.
 
 Informe falha quando ela afetar o resultado.
 
-## 13. Regra final
+## 14. Regra final
+
+RESOLVA a identidade do Brain.
 
 RECUPERE antes de assumir.
 
